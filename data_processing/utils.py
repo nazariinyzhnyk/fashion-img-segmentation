@@ -45,3 +45,8 @@ def preprocess_img_dataframe(path_to_df):
     size_df = segment_df.groupby('ImageId')['Height', 'Width'].mean()
     df = df.join(size_df, on='ImageId')
     return df
+
+
+def read_json_conf_file(path_to_file):
+    with open(path_to_file, 'r') as jfile:
+        return json.load(jfile)

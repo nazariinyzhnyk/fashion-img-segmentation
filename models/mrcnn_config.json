@@ -1,0 +1,31 @@
+{
+  "paths": {
+    "COCO_WEIGHTS_PATH": "../data/weights/mask_rcnn_coco.h5",
+    "PATH_TO_IMG_DF": "../data/train.csv",
+    "MODEL_DIR": "../model_dir",
+    "FINAL_WEIGHTS_PATH": "../final_weights_dir"
+  },
+  "model_params": {
+    "NAME": "fashion",
+    "GPU_COUNT": 1,
+    "IMAGES_PER_GPU": 1,
+    "BACKBONE": "resnet50",
+    "IMAGE_MIN_DIM": 512,
+    "IMAGE_MAX_DIM": 512,
+    "IMAGE_RESIZE_MODE": "none",
+    "RPN_ANCHOR_SCALES": [16, 32, 64, 128, 256],
+    "STEPS_PER_EPOCH": 10,
+    "VALIDATION_STEPS": 2
+  },
+  "learning_params": {
+    "LR_HEADS": 1e-4,
+    "LR_ALL": 1e-5,
+    "EPOCHS_HEADS": 1,
+    "EPOCHS_ALL": 1,
+    "CURRENT_FOLD": 0,
+    "NORMAL_CASE_TRAINING": false,
+    "SAVE_TRAIN_IMAGES": true,
+    "SEED": 42,
+    "CONTINUE_TRAINING": true
+  }
+}

@@ -2,7 +2,7 @@ mask_rcnn_coco.h5
 images/
 model_dir/
 data/
-*.json
+label_descriptions.json
 *.csv
 .idea
 
