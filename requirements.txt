@@ -1,0 +1,6 @@
+pandas
+scikit-learn
+mrcnn
+tensorflow
+numpy
+cv2
