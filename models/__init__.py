@@ -1,1 +1,1 @@
-from models.mrcnn_model_config import MrcnnConfig
+from models.mrcnn_model_config import MrcnnConfig, MrcnnConfigInference

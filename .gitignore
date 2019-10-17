@@ -5,6 +5,7 @@ data/
 label_descriptions.json
 *.csv
 .idea
+work_with_broken_df.ipynb
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

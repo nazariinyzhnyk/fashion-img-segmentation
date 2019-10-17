@@ -5,36 +5,40 @@ from data_processing import DatasetProcessor
 from models import MrcnnConfig
 import os
 import warnings
+import pandas as pd
 warnings.filterwarnings("ignore")
-
 # Retrieving main model parameters from config file
-conf_file = read_json_conf_file('mrcnn_config.json')
+conf_file = read_json_conf_file(os.path.join('..', 'mrcnn_config.json'))
 paths, learning_params, model_params = conf_file['paths'], conf_file['learning_params'], conf_file['model_params']
 
 # Setting seed in modules for results reproducibility
 set_seed_everywhere(learning_params['SEED'])
 
+
 # Preparing train/validation datasets
-image_df = preprocess_img_dataframe(paths['PATH_TO_IMG_DF'])
-splits = get_kfold_cv_splits(image_df)
-train_df, valid_df = get_fold(image_df, splits, learning_params['CURRENT_FOLD'])
-
 if learning_params['NORMAL_CASE_TRAINING']:
-    train_dataset = DatasetProcessor(train_df)
-    train_dataset.prepare()
+    image_df = preprocess_img_dataframe(paths['PATH_TO_IMG_DF'])
+    splits = get_kfold_cv_splits(image_df)
+    train_df, valid_df = get_fold(image_df, splits, learning_params['CURRENT_FOLD'])
+else:  # overfit on 10 images
+    if learning_params['USE_SAVED_IMAGES']:
+        image_df = preprocess_img_dataframe(paths['SAVED_DF_PATH'])
+    else:
+        image_df = pd.read_csv(paths['PATH_TO_IMG_DF'])
+        # Be careful! Seed was setted above. Re-set it for true rand sampling.
+        image_df = image_df[image_df.ImageId.isin(list(image_df.ImageId.sample(10)))]
+        if not learning_params['USE_SAVED_IMAGES']:
+            image_df.to_csv(paths['SAVED_DF_PATH'], index=False)
+        image_df = preprocess_img_dataframe(paths['SAVED_DF_PATH'])
+    train_df, valid_df = image_df, image_df
 
-    valid_dataset = DatasetProcessor(valid_df)
-    valid_dataset.prepare()
-else:
-    train_data = train_df.sample(10, random_state=learning_params['SEED'])
-    print('WARNING!!! Test code in progress. Num of examples for train:', len(train_data))
-    if learning_params['SAVE_TRAIN_IMAGES']:  # To retrieve images model trained on
-        train_data.to_csv(os.path.join('..', 'data', 'trained_on.csv'))
-    train_dataset = DatasetProcessor(train_data)
-    train_dataset.prepare()
 
-    valid_dataset = DatasetProcessor(train_data)
-    valid_dataset.prepare()
+train_dataset = DatasetProcessor(train_df)
+train_dataset.prepare()
+
+valid_dataset = DatasetProcessor(valid_df)
+valid_dataset.prepare()
+
 
 # Building model from config
 config = MrcnnConfig()
@@ -62,8 +66,9 @@ model.train(train_dataset, valid_dataset,
             augmentation=None)
 
 # Training all layers
-model.train(train_dataset, valid_dataset,
-            learning_rate=learning_params['LR_ALL'],
-            epochs=learning_params['EPOCHS_ALL'],
-            layers='all',
-            augmentation=None)
+if learning_params['TRAIN_ALL_LAYERS']:
+    model.train(train_dataset, valid_dataset,
+                learning_rate=learning_params['LR_ALL'],
+                epochs=learning_params['EPOCHS_ALL'],
+                layers='all',
+                augmentation=None)

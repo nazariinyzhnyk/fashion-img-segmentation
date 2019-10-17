@@ -8,7 +8,7 @@ from data_processing import resize_image, get_label_names
 class DatasetProcessor(utils.Dataset):
     def __init__(self, df):
         super().__init__(self)
-        self.label_names = get_label_names()
+        self.label_names = get_label_names(os.path.join('..', 'data', 'label_descriptions.json'))
 
         # Add classes
         for i, name in enumerate(self.label_names):
